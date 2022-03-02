@@ -3,53 +3,76 @@
 # Author: Daniel Brauner
 # Contributer: Luca Otting
 
+from genericpath import isfile
 import requests
 import webbrowser
 import random
+import os
 
-print("EIDI NEXT TOOL :)")
+def getToken(isValid):
+    if(not isValid):
+        os.remove(".TOKEN")
+    
+    with open(".TOKEN", 'a+') as file:
+        file.seek(0, 0)
+        token = file.read().strip()
+        if(not token):
+            token = input("Access token: ")
+            file.write(token)
 
-problem = int(input("Problem number: "), 10)
-correction_pass = int(input("Correction pass: "), 10)
+        return token
 
-# Token from the TUMExam cookie
-with open('TOKEN', 'r') as file:
-    token = file.read().strip()
 
-cookies = dict(token=token)
+def main():
+    print("EIDI NEXT TOOL :)")
 
-url = "https://2021ws-in-eidi.hq.tumexam.de/api/exam/1/correction/?"
-url += "filter[problem]=%d" % problem
-url += "&filter[correction_pass]=%d" % correction_pass 
-url += "&filter[corrected]=False"
-url += "&filter%5Bavailable%5D=true"
-url += "&filter[locked]=False"
-url += "&page=1"
+    problem = int(input("Problem number: "), 10)
+    correction_pass = int(input("Correction pass: "), 10)
 
-while (True):
-    response = requests.get(url, cookies=cookies)
-    maxPages = response.json()["max_page"]
+    # Token from the TUMExam cookie
+    token = getToken(True)
 
-    if (maxPages <= 0):
-        print("No free exam found")
+    cookies = dict(token=token)
 
-    else:
-        newUrl = "%s%d" % (url[:len(url) - 1], random.randint(1, maxPages))
+    url = "https://2021ws-in-eidi.hq.tumexam.de/api/exam/1/correction/?"
+    url += "filter[problem]=%d" % problem
+    url += "&filter[correction_pass]=%d" % correction_pass 
+    url += "&filter[corrected]=False"
+    url += "&filter%5Bavailable%5D=true"
+    url += "&filter[locked]=False"
+    url += "&page=1"
 
-        response = requests.get(newUrl, cookies=cookies)
-        results = response.json()["results"]
+    while(True):
+        response = requests.get(url, cookies=cookies)
+        if(response.text.startswith("<")):
+            print("Your access token is invalid. Did it expire?")
+            cookies = dict(token=getToken(False))
+            continue            
 
-        exam = results[random.randint(0, len(results) - 1)]
+        maxPages = response.json()["max_page"]
 
-        examUrl = "https://2021ws-in-eidi.hq.tumexam.de/exam/1/correction/%s/%d/%d?" % (exam["erid"], correction_pass, problem)
-        examUrl += "filter[problem]=%d" % problem
-        examUrl += "&filter[correction_pass]=%d" % correction_pass 
-        examUrl += "&filter[corrected]=False"
+        if (maxPages <= 0):
+            print("No free exam found")
 
-        webbrowser.open(examUrl)
+        else:
+            newUrl = "%s%d" % (url[:len(url) - 1], random.randint(1, maxPages))
 
-    print("\nPress Enter for Next or Q to exit:")
-    userInput = input()
+            response = requests.get(newUrl, cookies=cookies)
+            results = response.json()["results"]
 
-    if (len(userInput) > 0):
-        break
+            exam = results[random.randint(0, len(results) - 1)]
+
+            examUrl = "https://2021ws-in-eidi.hq.tumexam.de/exam/1/correction/%s/%d/%d?" % (exam["erid"], correction_pass, problem)
+            examUrl += "filter[problem]=%d" % problem
+            examUrl += "&filter[correction_pass]=%d" % correction_pass 
+            examUrl += "&filter[corrected]=False"
+
+            webbrowser.open(examUrl)
+
+        print("\nPress Enter for Next or Q to exit:")
+        userInput = input()
+
+        if (len(userInput) > 0):
+            break
+
+main()
