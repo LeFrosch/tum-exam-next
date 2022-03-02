@@ -60,14 +60,17 @@ def main():
             response = requests.get(newUrl, cookies=cookies)
             results = response.json()["results"]
 
-            exam = results[random.randint(0, len(results) - 1)]
+            if(len(results) <= 0):
+                print("No free exam found")
+            else: 
+                exam = results[random.randint(0, len(results) - 1)]
 
-            examUrl = "https://2021ws-in-eidi.hq.tumexam.de/exam/1/correction/%s/%d/%d?" % (exam["erid"], correction_pass, problem)
-            examUrl += "filter[problem]=%d" % problem
-            examUrl += "&filter[correction_pass]=%d" % correction_pass 
-            examUrl += "&filter[corrected]=False"
+                examUrl = "https://2021ws-in-eidi.hq.tumexam.de/exam/1/correction/%s/%d/%d?" % (exam["erid"], correction_pass, problem)
+                examUrl += "filter[problem]=%d" % problem
+                examUrl += "&filter[correction_pass]=%d" % correction_pass 
+                examUrl += "&filter[corrected]=False"
 
-            webbrowser.open(examUrl)
+                webbrowser.open(examUrl)
 
         print("\nPress Enter for Next or Q to exit:")
         userInput = input()
