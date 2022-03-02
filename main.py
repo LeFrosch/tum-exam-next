@@ -13,7 +13,8 @@ problem = int(input("Problem number: "), 10)
 correction_pass = int(input("Correction pass: "), 10)
 
 # Token from the TUMExam cookie
-token = "YOUR TOKEN HERE"
+with open('TOKEN', 'r') as file:
+    token = file.read().strip()
 
 cookies = dict(token=token)
 
