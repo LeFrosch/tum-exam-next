@@ -13,7 +13,7 @@ problem = int(input("Problem number: "), 10)
 correction_pass = int(input("Correction pass: "), 10)
 
 # Token from the TUMExam cookie
-token = "YOUE TOKEN HERE"
+token = "YOUR TOKEN HERE"
 
 cookies = dict(token=token)
 
@@ -35,7 +35,7 @@ while (True):
     else:
         newUrl = "%s%d" % (url[:len(url) - 1], random.randint(1, maxPages))
 
-        response = requests.get(url, cookies=cookies)
+        response = requests.get(newUrl, cookies=cookies)
         results = response.json()["results"]
 
         exam = results[random.randint(0, len(results) - 1)]
