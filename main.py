@@ -13,7 +13,7 @@ problem = int(input("Problem number: "), 10)
 correction_pass = int(input("Correction pass: "), 10)
 
 # Token from the TUMExam cookie
-token = "YOUR TOKEN HERE"
+token = "YOUE TOKEN HERE"
 
 cookies = dict(token=token)
 
@@ -29,19 +29,23 @@ while (True):
     response = requests.get(url, cookies=cookies)
     maxPages = response.json()["max_page"]
 
-    newUrl = "%s%d" % (url[:len(url) - 1], random.randint(1, maxPages))
+    if (maxPages <= 0):
+        print("No free exam found")
 
-    response = requests.get(url, cookies=cookies)
-    results = response.json()["results"]
+    else:
+        newUrl = "%s%d" % (url[:len(url) - 1], random.randint(1, maxPages))
 
-    exam = results[random.randint(0, len(results) - 1)]
+        response = requests.get(url, cookies=cookies)
+        results = response.json()["results"]
 
-    examUrl = "https://2021ws-in-eidi.hq.tumexam.de/exam/1/correction/%s/%d/%d?" % (exam["erid"], correction_pass, problem)
-    examUrl += "filter[problem]=%d" % problem
-    examUrl += "&filter[correction_pass]=%d" % correction_pass 
-    examUrl += "&filter[corrected]=False"
+        exam = results[random.randint(0, len(results) - 1)]
 
-    webbrowser.open(examUrl)
+        examUrl = "https://2021ws-in-eidi.hq.tumexam.de/exam/1/correction/%s/%d/%d?" % (exam["erid"], correction_pass, problem)
+        examUrl += "filter[problem]=%d" % problem
+        examUrl += "&filter[correction_pass]=%d" % correction_pass 
+        examUrl += "&filter[corrected]=False"
+
+        webbrowser.open(examUrl)
 
     print("\nPress Enter for Next or Q to exit:")
     userInput = input()
